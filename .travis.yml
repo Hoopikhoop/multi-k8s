@@ -1,0 +1,23 @@
+language: generic
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t hoopikhoop/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true hoopikhoop/react-test npm test 
+
+after_success:
+  - docker build -t hoopikhoop/multi-client ./client
+  - docker build -t hoopikhoop/multi-nginx ./nginx
+  - docker build -t hoopikhoop/multi-server ./server
+  - docker build -t hoopikhoop/multi-worker ./worker
+
+  # Travis CI will push images to Docker Hub
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push hoopikhoop/multi-client
+  - docker push hoopikhoop/multi-nginx
+  - docker push hoopikhoop/multi-server
+  - docker push hoopikhoop/multi-worker
