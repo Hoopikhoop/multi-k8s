@@ -9,3 +9,7 @@ before_install:
   - gcloud config set project dartdev-254217
   - gcloud config set compute/zone europe-central2-a
   - gcould container clusters get-credentials multi-k8s
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t hoopikhoop/react-test -f ./client/Dockerfile.dev ./client
+script:
+  - docker run -e CI=true hoopikhoop/react-test npm test
